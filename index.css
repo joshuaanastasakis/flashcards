@@ -1,0 +1,42 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+    align-items: center;
+
+    /* border: solid 1px black; */
+}
+
+.navtitle {
+    margin-bottom: auto;
+    margin: 1rem;
+    justify-content: left;
+
+    /* border: solid 1px black; */
+}
+
+.navlist {
+    display: flex;
+    margin-right: 1rem;
+    list-style-type: none;
+
+    /* border: solid 1px black; */
+}
+
+.navbar a {    
+    text-decoration: none;
+
+    /* border: solid 1px black; */
+}
+
+.navitem {
+    padding-left: 1em;
+}
+
+.cardview {
+    border: solid 1px black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
