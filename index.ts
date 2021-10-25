@@ -61,7 +61,7 @@ let row1: Row = {
     ]
 };
 
-let db = new Database(header);
+let db = new Database("file:\\C:\Users\Josh\Documents\Programming\Projects\flashcards\inputs\input.csv");
 
 db.addRow(row1);
 

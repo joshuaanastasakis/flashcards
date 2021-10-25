@@ -1,0 +1,7 @@
+id,front_text,front_note,back_text,back_note,test_attempts,test_successes,category,subcategory
+number,string,string,string,string,number,number,string,string
+1,Hello,,Hallo,,0,0,German,Greetings
+2,Goodbye,,Auf Weidersehen,,0,0,German,Greetings
+3,Good afternoon,,Guten abend,,0,0,German,Greetings
+4,Good night,,Guten nacht,,0,0,German,Greetings
+5,Good day,,Guten tag,,0,0,German,Greetings

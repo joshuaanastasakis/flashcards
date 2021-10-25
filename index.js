@@ -57,7 +57,7 @@ var row1 = {
         }
     ]
 };
-var db = new database_1.Database(header);
+var db = new database_1.Database("file:\\C:\Users\Josh\Documents\Programming\Projects\flashcards\inputs\input.csv");
 db.addRow(row1);
 db.print();
 // let cardimage = (document.getElementsByClassName('cardimage')[0] as HTMLImageElement).src = "1234";

@@ -6,12 +6,12 @@
     |31|32|33|34|
     |41|42|43|44|
 
-    headers [String]
+    headers [string]
     row     [any]
     rows    [row]
 
     sort_columns(by: )
-    arrange_columns(order: [String])
+    arrange_columns(order: [string])
     sort_rows(by: )
 
 
@@ -27,14 +27,73 @@
     - for each existing row, set value to undefined?
 */
 exports.__esModule = true;
-exports.Database = exports.Type = void 0;
+exports.Database = exports.Type = exports.parseCSV = exports.openCSV = void 0;
+var utilities_1 = require("./utilities");
+function openCSV(filepath) {
+    var file = new XMLHttpRequest();
+    var content = null;
+    file.open("GET", filepath, false);
+    file.onreadystatechange = function () {
+        // check file ready state
+        if (file.readyState === 4) {
+            // check file status
+            if (file.status === 200 || file.status === 0) {
+                content = file.responseText;
+            }
+        }
+    };
+    file.send(null);
+    if (!content || content === null) {
+        (0, utilities_1.assert)(false, "Content is null");
+    }
+    return content;
+}
+exports.openCSV = openCSV;
+function parseCSV(input) {
+    if (!input || input === null) {
+        return null;
+    }
+    var rows = input.split("\n");
+    // make sure that the header row (row 1) and the types row (row 2) exist
+    (0, utilities_1.assert)(rows.length >= 2, "Missing headers/types provided");
+    // store each row as an object, and all objects in an array
+    var data = [];
+    // get headers from first row
+    var headers = (rows[0]).split(',');
+    // shift down to next row (headers->types)
+    rows.shift();
+    // get types from second row
+    var types = (rows[0]).split(',');
+    // shift down to beginning of data rows
+    rows.shift();
+    // while there is data in the row
+    while (typeof rows[0] !== undefined) {
+        // put first data row into string array
+        var items = (rows[0]).split(',');
+        // init empty object for row data (item)
+        var item = {};
+        // loop through each item in the row
+        for (var i = 0; i < headers.length; i++) {
+            // set 'key' as the header corresponding to the column of the item
+            var key = headers[i];
+            // set 'value' as the contents of the current item
+            var value = items[i];
+            // set item object data
+            item[key] = value;
+        }
+        // add row object to main data array
+        data.push(item);
+    }
+    return data;
+}
+exports.parseCSV = parseCSV;
 var Type;
 (function (Type) {
-    Type["STRING"] = "String";
-    Type["NUMBER"] = "Number";
+    Type["STRING"] = "string";
+    Type["NUMBER"] = "number";
 })(Type = exports.Type || (exports.Type = {}));
 var Database = /** @class */ (function () {
-    function Database(headers) {
+    function Database(input) {
         var _this = this;
         this.addRow = function (newRow) {
             // if (this.rows===null) {
@@ -74,6 +133,7 @@ var Database = /** @class */ (function () {
             return true;
         };
         this.print = function () {
+            // each row should be represented by an object, with the title
             var header_titles = _this.headers.map(function (h) {
                 return h.title + "|";
             });
@@ -86,7 +146,10 @@ var Database = /** @class */ (function () {
                 console.log.apply(console, row_titles);
             }
         };
-        this.headers = headers;
+        this.generateHTML = function () {
+            (0, utilities_1.assert)(false, "TO DO");
+        };
+        this.headers = [];
         this.rows = [];
     }
     return Database;
