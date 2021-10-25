@@ -26,14 +26,14 @@
     - add header row with new type
     - for each existing row, set value to undefined?
 */
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.Database = exports.Type = exports.parseCSV = exports.openCSV = void 0;
-var utilities_1 = require("./utilities");
+const utilities_1 = require("./utilities");
 function openCSV(filepath) {
-    var file = new XMLHttpRequest();
-    var content = null;
+    let file = new XMLHttpRequest();
+    let content = null;
     file.open("GET", filepath, false);
-    file.onreadystatechange = function () {
+    file.onreadystatechange = () => {
         // check file ready state
         if (file.readyState === 4) {
             // check file status
@@ -53,38 +53,38 @@ function parseCSV(input) {
     if (!input || input === null) {
         return null;
     }
-    var rows = input.split("\n");
+    let rows = input.split("\n");
     // make sure that the header row (row 1) and the types row (row 2) exist
     (0, utilities_1.assert)(rows.length >= 2, "Missing headers/types provided");
     // store each row as an object, and all objects in an array
-    var data = [];
+    let data = [];
     // get headers from first row
-    var headers = (rows[0]).split(',');
+    let headers = (rows[0]).split(',');
     // shift down to next row (headers->types)
     rows.shift();
     // get types from second row
-    var types = (rows[0]).split(',');
+    let types = (rows[0]).split(',');
     // shift down to beginning of data rows
     rows.shift();
     // while there is data in the row
     while (typeof rows[0] !== undefined) {
         // put first data row into string array
-        var items = (rows[0]).split(',');
+        let items = (rows[0]).split(',');
         // init empty object for row data (item)
-        var item = {};
+        let item = {};
         // loop through each item in the row
-        for (var i = 0; i < headers.length; i++) {
+        for (let i = 0; i < headers.length; i++) {
             // set 'key' as the header corresponding to the column of the item
-            var key = headers[i];
+            let key = headers[i];
             // set 'value' as the contents of the current item
-            var value = items[i];
+            let value = items[i];
             // set item object data
             item[key] = value;
         }
         // add row object to main data array
         data.push(item);
     }
-    return data;
+    return [headers, types, data];
 }
 exports.parseCSV = parseCSV;
 var Type;
@@ -92,17 +92,39 @@ var Type;
     Type["STRING"] = "string";
     Type["NUMBER"] = "number";
 })(Type = exports.Type || (exports.Type = {}));
-var Database = /** @class */ (function () {
-    function Database(input) {
-        var _this = this;
-        this.addRow = function (newRow) {
-            // if (this.rows===null) {
-            //     this.rows = [];
-            // }
+class Database {
+    constructor(input) {
+        this.generateHeaders = (header_titles, header_types) => {
+            (0, utilities_1.assert)(header_titles.length === header_types.length, "Header titles and types lengths don't match");
+            (0, utilities_1.assert)(Object.keys(Type).length / 2 === 2, "unimplemented type checking");
+            let headers = [];
+            for (let i = 0; i < header_titles.length; i++) {
+                let type;
+                if (header_types[i] === "string") {
+                    type = Type.STRING;
+                }
+                else if (header_types[i] === "number") {
+                    type = Type.NUMBER;
+                }
+                else {
+                    (0, utilities_1.assert)(false, "Type should be either 'string or 'number'");
+                }
+                headers.push({
+                    type: type,
+                    key: "" + (i + 1),
+                    title: header_titles[i]
+                });
+            }
+            return headers;
+        };
+        this.addRow = (newRow, at) => {
             if (newRow === null) {
                 return;
             }
-            _this.rows.push(newRow);
+            if (!at) {
+                at = this.rows.length;
+            }
+            this.rows.splice(at, 0, newRow);
         };
         /*
             delete a row from the database
@@ -111,13 +133,13 @@ var Database = /** @class */ (function () {
             return:
                 - boolean (true on success, false on error)
         */
-        this.deleteRow = function (id) {
+        this.deleteRow = (id) => {
             // return false if param `id` is not positive (only allowing positive integers for id)
             if (id < 0) {
                 return false;
             }
             // get the row that matches param `id` by filtering the items array
-            var row = _this.rows.filter(function (r) {
+            const row = this.rows.filter((r) => {
                 r.id === id;
             });
             // return false if no row with param `id` found
@@ -125,33 +147,41 @@ var Database = /** @class */ (function () {
                 return false;
             }
             // get the index of the row found above
-            var index = _this.rows.indexOf(row[0]);
+            const index = this.rows.indexOf(row[0]);
             // remove index from rows array
-            if (_this.rows.splice(index, 1).length <= 0) {
+            if (this.rows.splice(index, 1).length <= 0) {
                 return false;
             }
             return true;
         };
-        this.print = function () {
+        this.print = () => {
             // each row should be represented by an object, with the title
-            var header_titles = _this.headers.map(function (h) {
+            let header_titles = this.headers.map((h) => {
                 return h.title + "|";
             });
-            console.log.apply(console, header_titles);
-            for (var r = 0; r < _this.rows.length; r++) {
-                var row = _this.rows[r];
-                var row_titles = row.items.map(function (i) {
+            console.log(...header_titles);
+            for (let r = 0; r < this.rows.length; r++) {
+                let row = this.rows[r];
+                let row_titles = row.items.map((i) => {
                     return i.value + "|";
                 });
-                console.log.apply(console, row_titles);
+                console.log(...row_titles);
             }
         };
-        this.generateHTML = function () {
+        this.generateHTML = () => {
             (0, utilities_1.assert)(false, "TO DO");
         };
+        const csv = openCSV(input);
+        let response = parseCSV(csv);
+        (0, utilities_1.assert)((response[2]).length === (new Set(response[2]).size));
+        ``;
+        let headers = response[0];
+        let types = response[1];
+        this.data = response[2];
+        this.headers = [];
         this.headers = [];
         this.rows = [];
+        this.data = [];
     }
-    return Database;
-}());
+}
 exports.Database = Database;

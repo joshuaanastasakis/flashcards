@@ -26,7 +26,7 @@
     - for each existing row, set value to undefined?
 */
 
-import { assert } from "./utilities";
+import { assert, generateObjectArray } from "./utilities";
 
 export function openCSV(filepath: string): string {
     let file = new XMLHttpRequest();
@@ -52,7 +52,7 @@ export function openCSV(filepath: string): string {
     return content;
 }
 
-export function parseCSV(input: string): {}[] {
+export function parseCSV(input: string): [string[], string[], {}[]] {
     if (!input || input === null) {
         return null;
     }
@@ -101,7 +101,7 @@ export function parseCSV(input: string): {}[] {
         data.push(item);
     }
 
-    return data;
+    return [headers, types, data];
 }
 
 export enum Type {
@@ -129,24 +129,69 @@ export class Database {
     private headers!: Header[];
     private rows?: Row[];
 
-    
+    private data!: {}[];
 
-    constructor(input: String) {
+    constructor(input: string) {
+
+        const csv: string = openCSV(input);
+
+        let response: [
+            string[], 
+            string[], 
+            {}[]
+        ] = parseCSV(csv);
+
+        assert((response[2]).length===(new Set(response[2]).size));``
+
+        let headers: string[] = response[0];
+        let types: string[] = response[1];
+
+        this.data = response[2];
+
+        this.headers = [];
+
+        
+
         this.headers=[];
         this.rows = [];
+        this.data = [];
     }
 
+    generateHeaders = (header_titles: string[], header_types: string[]) => {
+        assert(header_titles.length===header_types.length, "Header titles and types lengths don't match");
+        assert(Object.keys(Type).length/2 === 2, "unimplemented type checking");
 
+        let headers: Header[] = [];
+        for (let i=0; i < header_titles.length; i++) {
+            let type: Type;
+            if (header_types[i]==="string") {
+                type=Type.STRING;
+            } else if (header_types[i]==="number") {
+                type=Type.NUMBER;
+            } else {
+                assert(false, "Type should be either 'string or 'number'");
+            }
 
-    addRow = (newRow: Row) => {
-        // if (this.rows===null) {
-        //     this.rows = [];
-        // }
+            headers.push({
+                type: type,
+                key: "" + (i+1),
+                title: header_titles[i]
+            });
+        }
+
+        return headers;
+    }
+
+    addRow = (newRow: Row, at?: number) => {
         if (newRow === null) {
             return;
         }
 
-        this.rows.push(newRow);
+        if (!at) {
+            at=this.rows.length;
+        }
+
+        this.rows.splice(at, 0, newRow);
     }
 
     /*

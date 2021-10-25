@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "allowUnreachableCode": true,
+        "target":"ES6",
+        "lib": ["ES2015", "dom"]
+    },
+    "exclude": [
+        "node_modules"
+    ],
+    "include": [
+        "inputs/*"
+    ]
+}
